@@ -1,7 +1,6 @@
 import urlparse
-import xbmcaddon
-import xbmcgui
-import xbmcplugin
+import xbmcaddon, xbmcgui, xbmcplugin, xbmc
+import sys
 from Rtve import *
 
 def set_args():
@@ -76,7 +75,7 @@ def programs(channel, start = None, page = 1):
     
     xbmcplugin.endOfDirectory(handle)
 
-def ranking(arg_id, branch, ranking, page = 1):
+def ranking(arg_id, branch, ranking, page):
     rtve = Rtve(Media.RADIO, base_url)
     rtve.set_page(page)
     args = {
@@ -85,9 +84,14 @@ def ranking(arg_id, branch, ranking, page = 1):
         'branch': branch,
         'ranking': ranking
     }
+    log("ranking handle: " + str(handle))
     for node in rtve.get_audios(args):
-        xbmcplugin.addDirectoryItem(handle, node.url, node.listItem)
+        xbmcplugin.addDirectoryItem(handle, node.url, node.listItem, False)
     xbmcplugin.endOfDirectory(handle)
+
+def play(handle, stream):
+    listitem = ListItem(path=stream)
+    return xbmcplugin.setResolvedUrl(handle=handle, succeeded=True, listitem=listitem) 
     
     
 def test(program):
@@ -108,6 +112,7 @@ REMOTE_DBG = True
 handle = None
 action = None
 arg_id = None
+stream = None
 page = 1
 base_url = sys.argv[0]
 args = urlparse.parse_qs(sys.argv[2][1:])
@@ -125,6 +130,9 @@ if len(args)>0:
     start = args.get('start', None)
     if start <> None:
         start = str(start[0])
+    stream = args.get('stream', None)
+    if stream <> None:
+        stream = str(stream[0])
     page = args.get('page', None)
     if page <> None:
         page = str(page[0])
@@ -157,6 +165,10 @@ elif action=='program':
     program(arg_id)
 elif action=='program.' + Ranking.RECENT.value:
     ranking(arg_id, Branch.PROGRAMS, Ranking.RECENT, page)
+elif action=='play':
+    play(handle=handle, stream=stream)
+else:
+    test(program)
 
 
 
