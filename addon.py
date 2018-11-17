@@ -27,44 +27,44 @@ def channels():
     for node in rtve.get_channels():
         xbmcplugin.addDirectoryItem(handle, node.url, node.listItem, True)
     
-    xbmcplugin.endOfDirectory(handle)
+    xbmcplugin.endOfDirectory(handle, succeeded=True, updateListing=True, cacheToDisc=True)
     
 def channel(chid):
     listItem = ListItem()
     listItem.setLabel("A - Z")
-    xbmcplugin.addDirectoryItem(handle, buildUrl({'action': Branch.PROGRAMS.value, 'arg_id': chid}, base_url), listItem, True)
+    xbmcplugin.addDirectoryItem(handle, buildUrl({'action': Branch.PROGRAMS, 'arg_id': chid}, base_url), listItem, True)
     
     listItem = ListItem()
     listItem.setLabel("Popular")
-    xbmcplugin.addDirectoryItem(handle, buildUrl({'action': Branch.CHANNELS.value + '.' + Ranking.POPULAR.value, 'arg_id': chid}, base_url), listItem, True)
+    xbmcplugin.addDirectoryItem(handle, buildUrl({'action': Branch.CHANNELS + '.' + Ranking.POPULAR, 'arg_id': chid}, base_url), listItem, True)
     
     listItem = ListItem()
     listItem.setLabel("Most seen")
-    xbmcplugin.addDirectoryItem(handle, buildUrl({'action': Branch.CHANNELS.value + '.' + Ranking.MOREVISITED.value, 'arg_id': chid}, base_url), listItem, True)
+    xbmcplugin.addDirectoryItem(handle, buildUrl({'action': Branch.CHANNELS + '.' + Ranking.MOREVISITED, 'arg_id': chid}, base_url), listItem, True)
     
-    xbmcplugin.endOfDirectory(handle)
+    xbmcplugin.endOfDirectory(handle, succeeded=True, updateListing=False, cacheToDisc=True)
 
 def program(prid):
     listItem = ListItem()
     listItem.setLabel("A - Z")
-    xbmcplugin.addDirectoryItem(handle, buildUrl({'action': 'program.' + Ranking.RECENT.value , 'arg_id': prid}, base_url), listItem, True)
+    xbmcplugin.addDirectoryItem(handle, buildUrl({'action': 'program.' + Ranking.RECENT , 'arg_id': prid}, base_url), listItem, True)
     
     listItem = ListItem()
     listItem.setLabel("Popular")
-    xbmcplugin.addDirectoryItem(handle, buildUrl({'action': Branch.PROGRAMS.value + '.' + Ranking.POPULAR.value, 'arg_id': prid}, base_url), listItem, True)
+    xbmcplugin.addDirectoryItem(handle, buildUrl({'action': Branch.PROGRAMS + '.' + Ranking.POPULAR, 'arg_id': prid}, base_url), listItem, True)
     
     listItem = ListItem()
     listItem.setLabel("Most seen")
-    xbmcplugin.addDirectoryItem(handle, buildUrl({'action': Branch.PROGRAMS.value + '.' + Ranking.MOREVISITED.value, 'arg_id': prid}, base_url), listItem, True)
+    xbmcplugin.addDirectoryItem(handle, buildUrl({'action': Branch.PROGRAMS + '.' + Ranking.MOREVISITED, 'arg_id': prid}, base_url), listItem, True)
     
-    xbmcplugin.endOfDirectory(handle)
+    xbmcplugin.endOfDirectory(handle, succeeded=True, updateListing=False, cacheToDisc=True)
 
 def azprograms(chid):
     rtve = Rtve(Media.RADIO, base_url)
     for node in rtve.get_a_to_z(chid):
         xbmcplugin.addDirectoryItem(handle, node.url, node.listItem, True)
     
-    xbmcplugin.endOfDirectory(handle)
+    xbmcplugin.endOfDirectory(handle, succeeded=True, updateListing=False, cacheToDisc=True)
     
 
 def programs(channel, start = None, page = 1):
@@ -73,21 +73,21 @@ def programs(channel, start = None, page = 1):
     for node in rtve.get_programs(channel, start):
         xbmcplugin.addDirectoryItem(handle, node.url, node.listItem, True)
     
-    xbmcplugin.endOfDirectory(handle)
+    xbmcplugin.endOfDirectory(handle, succeeded=True, updateListing=False, cacheToDisc=True)
 
 def ranking(arg_id, branch, ranking, page):
     rtve = Rtve(Media.RADIO, base_url)
     rtve.set_page(page)
     args = {
         'id' : arg_id,
-        'action': branch.value + '.' + ranking.value,
+        'action': branch + '.' + ranking,
         'branch': branch,
         'ranking': ranking
     }
     log("ranking handle: " + str(handle))
     for node in rtve.get_audios(args):
         xbmcplugin.addDirectoryItem(handle, node.url, node.listItem, False)
-    xbmcplugin.endOfDirectory(handle)
+    xbmcplugin.endOfDirectory(handle, succeeded=True, updateListing=False, cacheToDisc=True)
 
 def play(handle, stream):
     listitem = ListItem(path=stream)
@@ -151,19 +151,19 @@ elif action=='channel':
     channel(arg_id)
 elif action=='azprograms':
     azprograms(arg_id)
-elif action==Branch.PROGRAMS.value:
+elif action==Branch.PROGRAMS:
     programs(arg_id, start, page)
-elif action==Branch.CHANNELS.value + '.' + Ranking.POPULAR.value:
+elif action==Branch.CHANNELS + '.' + Ranking.POPULAR:
     ranking(arg_id, Branch.CHANNELS, Ranking.POPULAR, page)
-elif action==Branch.CHANNELS.value + '.' + Ranking.MOREVISITED.value:
+elif action==Branch.CHANNELS + '.' + Ranking.MOREVISITED:
     ranking(arg_id, Branch.CHANNELS, Ranking.MOREVISITED, page)
-elif action==Branch.PROGRAMS.value + '.' + Ranking.POPULAR.value:
+elif action==Branch.PROGRAMS + '.' + Ranking.POPULAR:
     ranking(arg_id, Branch.PROGRAMS, Ranking.POPULAR, page)
-elif action==Branch.PROGRAMS.value + '.' + Ranking.MOREVISITED.value:
+elif action==Branch.PROGRAMS + '.' + Ranking.MOREVISITED:
     ranking(arg_id, Branch.PROGRAMS, Ranking.MOREVISITED, page)
 elif action=='program':
     program(arg_id)
-elif action=='program.' + Ranking.RECENT.value:
+elif action=='program.' + Ranking.RECENT:
     ranking(arg_id, Branch.PROGRAMS, Ranking.RECENT, page)
 elif action=='play':
     play(handle=handle, stream=stream)
